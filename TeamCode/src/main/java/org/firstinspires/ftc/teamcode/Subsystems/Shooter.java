@@ -19,19 +19,19 @@ public class Shooter {
         shootTime = System.currentTimeMillis();
     }
     boolean rightbumperPressed = false;
-    public static double shooterStartPos = .5;
-    public static double shooterEndPos = .65;
-    double shooterPos = shooterStartPos;
+    public static double shooterRestPos = .5;
+    public static double shooterShootPos = .65;
+    double shooterPos = shooterRestPos;
     public void shootServo(boolean rightBumper) {
         if (!rightbumperPressed && rightBumper){
             shootTime = System.currentTimeMillis();
             rightbumperPressed = true;
-                shooterPos = shooterEndPos;
+                shooterPos = shooterShootPos;
         }else if (!rightBumper){
             rightbumperPressed = false;
         }
         if (System.currentTimeMillis() - shootTime > 200){
-            shooterPos = shooterStartPos;
+            shooterPos = shooterRestPos;
         }
         shooterServo.setPosition(shooterPos);
     }
@@ -44,14 +44,14 @@ public class Shooter {
            double HOLD_TIME = MIN_FIRE_HOLD_TIME * 1000 + REST_TIME;
            double TimePassed = System.currentTimeMillis() - shootTime;
             if (TimePassed < REST_TIME){
-                shooterServo.setPosition(shooterStartPos);
+                shooterServo.setPosition(shooterRestPos);
             } else if (TimePassed > REST_TIME && TimePassed < HOLD_TIME){
-                shooterServo.setPosition(shooterEndPos);
+                shooterServo.setPosition(shooterShootPos);
             } else if (TimePassed > HOLD_TIME){
                 shootTime = System.currentTimeMillis(); //reset shootTime, this means it will continue firing OR start firing
             }
         }else{
-            shooterServo.setPosition(shooterStartPos);
+            shooterServo.setPosition(shooterRestPos);
         }
     }
     boolean leftbumperPressed = false;
