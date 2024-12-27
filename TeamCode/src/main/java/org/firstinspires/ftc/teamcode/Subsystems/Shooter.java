@@ -19,8 +19,8 @@ public class Shooter {
         shootTime = System.currentTimeMillis();
     }
     boolean rightbumperPressed = false;
-    double shooterStartPos = .5;
-    double shooterEndPos = .65;
+    public static double shooterStartPos = .5;
+    public static double shooterEndPos = .65;
     double shooterPos = shooterStartPos;
     public void shootServo(boolean rightBumper) {
         if (!rightbumperPressed && rightBumper){
@@ -41,15 +41,14 @@ public class Shooter {
         if (rightTrigger > .1) {
            double REST_RATE = MIN_REST_TIME + (1-rightTrigger);
            double REST_TIME = REST_RATE * 1000; //Converts to an actual time in milliseconds
-           double HOLD_RATE = MIN_FIRE_HOLD_TIME + (1-rightTrigger);
-           double HOLD_TIME = HOLD_RATE * 1000 + REST_TIME;
+           double HOLD_TIME = MIN_FIRE_HOLD_TIME * 1000 + REST_TIME;
            double TimePassed = System.currentTimeMillis() - shootTime;
             if (TimePassed < REST_TIME){
                 shooterServo.setPosition(shooterStartPos);
             } else if (TimePassed > REST_TIME && TimePassed < HOLD_TIME){
                 shooterServo.setPosition(shooterEndPos);
             } else if (TimePassed > HOLD_TIME){
-                shootTime = System.currentTimeMillis();
+                shootTime = System.currentTimeMillis(); //reset shootTime, this means it will continue firing OR start firing
             }
         }else{
             shooterServo.setPosition(shooterStartPos);
