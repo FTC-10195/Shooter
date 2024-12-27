@@ -20,6 +20,7 @@ public class OutreachShootsHalfPower extends LinearOpMode {
             shooter.shootServo(gamepad1.right_bumper);
             shooter.shootMotor(gamepad1.left_bumper);
             driveTrain.run(gamepad1.right_stick_x, -gamepad1.left_stick_y, gamepad1.left_stick_x * 1.1);
+            shooter.updateShooter();
         }
     }
 }

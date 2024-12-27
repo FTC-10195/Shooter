@@ -19,6 +19,7 @@ public class OutreachSHOOTSONLY extends LinearOpMode {
         while (opModeIsActive()) {
             shooter.shootServo(gamepad1.right_bumper);
             shooter.shootMotor(gamepad1.left_bumper);
+            shooter.updateShooter();
         }
     }
 }

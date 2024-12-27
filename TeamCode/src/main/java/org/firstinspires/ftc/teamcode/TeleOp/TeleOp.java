@@ -19,9 +19,11 @@ public class TeleOp extends LinearOpMode {
         while (opModeIsActive()) {
             shooter.shootServo(gamepad1.right_bumper);
             shooter.shootMotor(gamepad1.left_bumper);
-            shooter.autoShooter(gamepad1.right_trigger);
+            shooter.autoShooter(gamepad1.right_trigger,telemetry);
             shooter.motorController(gamepad1.left_trigger);
             driveTrain.run(gamepad1.right_stick_x, -gamepad1.left_stick_y, gamepad1.left_stick_x * 1.1);
+            shooter.updateShooter();
+            telemetry.update();
         }
     }
 }

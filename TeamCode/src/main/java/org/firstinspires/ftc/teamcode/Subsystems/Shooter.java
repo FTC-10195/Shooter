@@ -7,16 +7,22 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.opencv.core.Mat;
+
+import java.sql.Time;
+
 @Config
 public class Shooter {
     DcMotor shooterMotor;
     Servo shooterServo;
     double shootTime;
+    double autoShootTime;
     public void initiate(HardwareMap hardwareMap) {
         shooterMotor = hardwareMap.dcMotor.get("shooter");
         shooterServo = hardwareMap.servo.get("servo");
         shooterServo.setDirection(Servo.Direction.REVERSE);
         shootTime = System.currentTimeMillis();
+        autoShootTime = System.currentTimeMillis();
     }
     boolean rightbumperPressed = false;
     public static double shooterRestPos = .5;
@@ -33,30 +39,33 @@ public class Shooter {
         if (System.currentTimeMillis() - shootTime > 200){
             shooterPos = shooterRestPos;
         }
-        shooterServo.setPosition(shooterPos);
     }
-   public static double MIN_REST_TIME = .2;
-    public static double MIN_FIRE_HOLD_TIME = .2;
-    public void autoShooter(double rightTrigger){
+   public static double MIN_REST_TIME = .14;
+    public static double MIN_FIRE_HOLD_TIME = .14;
+    public void autoShooter(double rightTrigger, Telemetry telemetry){
+        double REST_RATE = MIN_REST_TIME + (1 - rightTrigger);
+        double REST_TIME = REST_RATE * 1000; //Converts to an actual time in milliseconds
+        double HOLD_TIME = MIN_FIRE_HOLD_TIME * 1000;
+        double TimePassed = System.currentTimeMillis() - autoShootTime;
         if (rightTrigger > .1) {
-           double REST_RATE = MIN_REST_TIME + (1-rightTrigger);
-           double REST_TIME = REST_RATE * 1000; //Converts to an actual time in milliseconds
-           double HOLD_TIME = MIN_FIRE_HOLD_TIME * 1000 + REST_TIME;
-           double TimePassed = System.currentTimeMillis() - shootTime;
-            if (TimePassed < REST_TIME){
-                shooterServo.setPosition(shooterRestPos);
-            } else if (TimePassed > REST_TIME && TimePassed < HOLD_TIME){
-                shooterServo.setPosition(shooterShootPos);
-            } else if (TimePassed > HOLD_TIME){
-                shootTime = System.currentTimeMillis(); //reset shootTime, this means it will continue firing OR start firing
+            if (TimePassed < HOLD_TIME){
+                shooterPos = shooterShootPos;
+            } else {
+                shooterPos = shooterRestPos;
+                if (TimePassed > (HOLD_TIME + REST_TIME)){
+                    autoShootTime = System.currentTimeMillis();
+                }
             }
         }else{
-            shooterServo.setPosition(shooterRestPos);
+            autoShootTime = System.currentTimeMillis();
         }
+    }
+    public void updateShooter(){
+        shooterServo.setPosition(shooterPos);
     }
     boolean leftbumperPressed = false;
     boolean motorRunning = false;
-    public static double maxPower =.6;
+    public static double maxPower =1;
     double power = 0;
     public void shootMotor(boolean leftBumper) {
         if (!leftbumperPressed && leftBumper){
@@ -74,8 +83,8 @@ public class Shooter {
         shooterMotor.setPower(power);
     }
     public void motorController(double leftTrigger){
-        if (leftTrigger > power){
-            shooterMotor.setPower(leftTrigger);
+        if (leftTrigger > Math.abs(power)){
+            shooterMotor.setPower(-leftTrigger);
         } else {
             shooterMotor.setPower(power);
         }
